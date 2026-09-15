@@ -35,6 +35,14 @@ async function health() {
   emit('health', app.live);
 }
 
+// The hero fills the screen below the header, so it needs the header's real height.
+function trackTopbar() {
+  const bar = document.querySelector('.topbar');
+  const set = () => document.documentElement.style.setProperty('--topbar-h', `${Math.round(bar.getBoundingClientRect().height)}px`);
+  set();
+  new ResizeObserver(set).observe(bar);
+}
+
 function initHeader() {
   const tier = $('#tier');
   tier.value = app.tier;
@@ -42,6 +50,7 @@ function initHeader() {
   $('#sessionCost').textContent = `$${app.cost.toFixed(3)} spent`;
 }
 
+trackTopbar();
 initHeader();
 initSimulation();
 window.addEventListener('hashchange', route);

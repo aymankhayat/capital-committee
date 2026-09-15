@@ -3,14 +3,14 @@
    names are Cinzel caps (from the reference map); everything else is Plex Sans. */
 
 :root {
-  --ground-0: #1D2136;
-  --ground-1: #262B45;
-  --ground-2: #353C60;
-  --surface: #262B45;
-  --surface-2: #2C3251;
-  --surface-3: #343B5D;
-  --hair: #3B4265;
-  --hair-2: #4B537A;
+  --ground-0: #04050A;
+  --ground-1: #07080F;
+  --ground-2: #0D1018;
+  --surface: #0B0D15;
+  --surface-2: #11141E;
+  --surface-3: #191D2A;
+  --hair: #1E2330;
+  --hair-2: #2E3546;
   --ink: #ECEAF6;
   --ink-2: #AEB2CE;
   --ink-3: #8D92B5;
@@ -38,12 +38,15 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
+/* The full-bleed hero uses 100vw, which is wider than the content box when a
+   scrollbar is present; clip keeps that from creating a sideways scroll. */
+html, body { overflow-x: clip; }
 body {
   margin: 0;
   min-height: 100vh;
   font: 400 var(--fs-m)/1.55 var(--sans);
   color: var(--ink);
-  background: var(--ground-1) radial-gradient(ellipse 90% 70% at 50% 28%, var(--ground-2) 0%, var(--ground-1) 48%, var(--ground-0) 100%) fixed;
+  background: #000 radial-gradient(ellipse 70% 55% at 50% 12%, #10131f 0%, #06070d 55%, #000 100%) fixed;
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--ink); text-underline-offset: 3px; text-decoration-color: var(--hair-2); }
@@ -568,6 +571,120 @@ input[type="range"] { width: 100%; accent-color: var(--dc, var(--ink)); height: 
 .fw-ref .md { font-size: 13px; color: var(--ink-2); margin-top: 8px; }
 .empty-state { color: var(--ink-3); font-size: var(--fs-s); }
 
+/* ------------------------------------------------------------- hero (3D) */
+.hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: -28px;
+  /* the sticky header sits above the hero, so take its height off */
+  height: calc(100svh - var(--topbar-h, 96px) + 28px);
+  min-height: 560px;
+  overflow: hidden;
+  background: #000 radial-gradient(ellipse 60% 50% at 50% 45%, #0b0e1a 0%, #04050a 60%, #000 100%);
+  border-bottom: 1px solid var(--hair);
+}
+.scene { position: absolute; inset: 0; }
+.scene canvas { display: block; width: 100%; height: 100%; }
+.scene-svg { width: 100%; height: 100%; }
+.scene-labels { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+
+/* labels drawn over the 3D scene */
+.n3-label { text-align: center; transform: translate(-50%, -50%); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
+.n3-label.dim { opacity: .2; }
+.n3-name {
+  display: block; font-family: var(--display); font-weight: 600; font-size: clamp(15px, 1.5vw, 22px); letter-spacing: .18em;
+  color: #F2F4FF; text-shadow: 0 0 18px color-mix(in srgb, var(--dc) 75%, transparent), 0 2px 10px #000;
+}
+.n3-sub { display: block; font-size: 11.5px; letter-spacing: .04em; color: var(--ink-2); text-transform: lowercase; margin-top: 2px; text-shadow: 0 1px 6px #000; }
+.n3-label[data-state="done"] .n3-sub { color: #fff; }
+.n3-label[data-state="pending"] .n3-sub { color: var(--dc); }
+.n3-agent {
+  transform: translate(-50%, -100%); opacity: 0; transition: opacity .45s; pointer-events: none;
+  background: linear-gradient(160deg, rgba(30,36,52,.92), rgba(8,10,16,.92));
+  border: 1px solid var(--hair-2); border-radius: 6px; padding: 5px 9px; width: 146px; white-space: normal;
+  box-shadow: 0 10px 26px -12px #000;
+}
+.n3-agent.on { opacity: 1; }
+.n3-agent b { display: block; font-size: 12px; font-weight: 600; color: #fff; }
+.n3-agent span { display: block; font-size: 10.5px; line-height: 1.35; color: var(--ink-3); }
+.n3-brain { transform: translate(-50%, 0); text-align: center; pointer-events: none; }
+.n3-brain-kicker { display: block; font-family: var(--display); font-size: 11px; letter-spacing: .34em; color: var(--ink-3); }
+.n3-brain-state { display: block; font-family: var(--display); font-size: clamp(16px, 2vw, 26px); letter-spacing: .1em; color: var(--star); text-shadow: 0 0 26px rgba(255,220,190,.55); text-transform: uppercase; margin-top: 4px; }
+.n3-brain[data-tone="good"] .n3-brain-state { color: #8FF0BE; text-shadow: 0 0 26px rgba(98,194,149,.6); }
+.n3-brain[data-tone="warn"] .n3-brain-state { color: #F5CE86; text-shadow: 0 0 26px rgba(221,169,70,.55); }
+.n3-brain[data-tone="bad"] .n3-brain-state { color: #FFA394; text-shadow: 0 0 26px rgba(232,112,95,.55); }
+
+/* isolation: the scrims below sit at z-index -1 inside their own stacking
+   context, so they cover the canvas instead of hiding behind it. */
+.hero-lead { position: absolute; top: clamp(10px, 1.6vh, 20px); left: 50%; transform: translateX(-50%); width: min(620px, calc(100% - 32px)); text-align: center; pointer-events: none; z-index: 2; isolation: isolate; }
+.hero-kicker { margin: 0; font-family: var(--display); font-size: clamp(11px, 1.2vw, 13px); letter-spacing: .34em; color: var(--ink-3); text-transform: uppercase; }
+.hero .map-caption { margin: 5px 0 0; color: var(--ink-2); font-size: var(--fs-xs); text-shadow: 0 1px 8px #000; }
+.hero-bottom { position: absolute; left: 0; right: 0; bottom: clamp(44px, 6vh, 70px); padding: 0 16px; display: grid; gap: 10px; justify-items: center; z-index: 2; isolation: isolate; }
+/* scrim so the controls stay readable over the moving scene */
+.hero-bottom::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -100px; top: -46px; z-index: -1; pointer-events: none;
+  background: linear-gradient(to top, #000 8%, rgba(0,0,0,.82) 42%, transparent 100%);
+}
+.hero-lead::before {
+  content: ""; position: absolute; left: -50vw; right: -50vw; top: -70px; bottom: -22px; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, #000 12%, rgba(0,0,0,.72) 55%, transparent 100%);
+}
+.hero-bottom .ask {
+  width: min(680px, 100%);
+  background: linear-gradient(160deg, rgba(28,33,48,.86), rgba(6,8,13,.92));
+  color: var(--ink);
+  border: 1px solid var(--hair-2);
+  box-shadow: 0 24px 60px -30px #000, inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+}
+.hero-bottom .ask textarea { color: var(--ink); }
+.hero-bottom .ask textarea::placeholder { color: var(--ink-3); }
+.hero-bottom .ask-ghost { color: var(--ink-2); }
+.hero-bottom .ask-ghost:hover { background: var(--surface-3); }
+.hero-bottom .ask-go { background: linear-gradient(160deg, #E9ECF7, #AEB6D0); color: #06070D; font-weight: 600; }
+.hero-bottom .ask-go:hover { background: linear-gradient(160deg, #fff, #C9CFE4); }
+.hero-bottom .ask:focus-within { box-shadow: 0 0 0 1px var(--star), 0 24px 60px -30px #000; }
+.hero-bottom .context-panel { width: min(880px, 100%); }
+.hero-bottom .samples { margin: 0; }
+.hero-bottom .sample-chip { background: rgba(10,12,20,.72); backdrop-filter: blur(6px); }
+.hero-bottom .samples { max-width: 760px; }
+/* short screens: keep the chips to one row so they don't cover the tree */
+@media (max-height: 860px) {
+  .hero-bottom .sample-chip:nth-child(n+4) { display: none; }
+  .hero .map-caption { font-size: var(--fs-xs); }
+}
+.hero-hint { margin: 2px 0 0; font-size: var(--fs-xs); color: var(--ink-3); text-align: center; }
+.hero-hint a { color: var(--ink-2); }
+.hero-credit { position: absolute; right: 18px; bottom: 16px; margin: 0; font-size: var(--fs-xs); color: var(--ink-3); }
+.hero-credit a { color: var(--ink-2); }
+
+.focus-panel {
+  position: absolute; left: clamp(16px, 3vw, 34px); top: 50%; transform: translateY(-50%);
+  width: min(330px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; z-index: 6;
+  background: linear-gradient(160deg, rgba(26,31,45,.92), rgba(6,8,13,.94));
+  border: 1px solid var(--hair-2); border-left: 3px solid var(--dc, var(--star)); border-radius: var(--r-m);
+  padding: 16px 18px; box-shadow: 0 30px 70px -30px #000; backdrop-filter: blur(10px);
+}
+.focus-panel h3 { font-size: var(--fs-l); margin-bottom: 2px; }
+.focus-panel .fp-sub { font-size: var(--fs-xs); color: var(--ink-3); margin: 0 0 10px; }
+.focus-panel .fp-line { font-size: var(--fs-s); color: var(--ink); margin: 0 0 10px; }
+.focus-panel ul { margin: 0 0 12px; padding-left: 16px; font-size: var(--fs-s); color: var(--ink-2); }
+.focus-panel li { margin: 3px 0; }
+.focus-panel .fp-agents { list-style: none; padding: 0; display: grid; gap: 6px; }
+.focus-panel .fp-agents b { color: var(--ink); font-weight: 500; display: block; font-size: var(--fs-s); }
+.focus-panel .fp-agents span { font-size: var(--fs-xs); color: var(--ink-3); }
+.focus-panel .fp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+.below { padding-top: 34px; }
+.controls-strip { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.metal {
+  background: linear-gradient(160deg, rgba(32,38,54,.55), rgba(9,11,18,.85));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 20px 40px -32px #000;
+}
+.brain-card { background: linear-gradient(180deg, rgba(244,239,227,.06) 0%, rgba(11,13,21,.96) 55%); }
+
 /* ------------------------------------------------------------- memo (print) */
 .memo { display: none; }
 @media print {
@@ -597,6 +714,8 @@ input[type="range"] { width: 100%; accent-color: var(--dc, var(--ink)); height: 
   .topbar { grid-template-columns: 1fr auto; }
   .modes { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
   .stage { grid-template-columns: 1fr; }
+  .controls-strip { grid-template-columns: minmax(0, 1fr); }
+  .focus-panel { left: 16px; right: 16px; width: auto; top: auto; bottom: 210px; transform: none; max-height: 42vh; }
   .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .calc { grid-template-columns: minmax(0, 1fr); }
   .two-col { grid-template-columns: 1fr; }

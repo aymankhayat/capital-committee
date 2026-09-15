@@ -7,6 +7,8 @@
 ## Three modes
 
 ### 1. Company Simulation (main page)
+The landing screen is a full-viewport 3D committee map (three.js): metallic department hubs orbiting the Company Brain, a live particle core, drifting dust and beads of light flowing along each department's link. Hovering a department flies the camera in and sets off a burst of its colour; clicking zooms further and reveals that department's specialist agents, with the panel showing what each one contributed once a verdict is in. Everything else is one scroll below. Without WebGL, or with reduced motion requested, it falls back to the flat SVG map.
+
 A decision runs through seven department agents, **in parallel**, each a separate Claude call with its own persona:
 
 | Department | Argues from | Characteristic bias (kept on purpose) |

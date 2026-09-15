@@ -50,6 +50,7 @@ http.createServer(async (req, res) => {
     if ((await stat(p).catch(() => null))?.isDirectory()) p = path.join(p, 'index.html');
     const data = await readFile(p);
     res.setHeader('Content-Type', types[path.extname(p)] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'no-store'); // dev: always serve the file on disk
     res.end(data);
   } catch (e) {
     if (e.code === 'ENOENT') { res.statusCode = 404; return res.end('Not found'); }

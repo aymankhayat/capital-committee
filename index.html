@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Capital Committee</title>
   <meta name="description" content="Run a capital decision through a simulated investment committee of seven AI departments, model it with NPV, IRR and tornado sensitivity, and drill consulting case interviews.">
-  <meta name="theme-color" content="#262B45">
+  <meta name="theme-color" content="#04050A">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/app.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
+  <a class="skip" href="#board">Skip to the boardroom</a>
 
   <header class="topbar">
     <a class="brand" href="#simulation" aria-label="Capital Committee, home">
@@ -44,28 +52,41 @@
     <section id="view-simulation" class="view" data-view="simulation" aria-labelledby="sim-title">
       <h1 id="sim-title" class="sr-only">Company simulation</h1>
 
-      <form id="askForm" class="ask" autocomplete="off">
-        <label for="decision" class="sr-only">Decision for the committee</label>
-        <textarea id="decision" rows="1" maxlength="2000" placeholder="Put a decision to the committee…"></textarea>
-        <button type="button" id="contextToggle" class="ask-ghost" aria-expanded="false" aria-controls="contextPanel">Context</button>
-        <button type="submit" id="convene" class="ask-go">Convene committee</button>
-      </form>
-      <div id="contextPanel" class="context-panel" hidden>
-        <label for="context">Company context the departments should assume</label>
-        <textarea id="context" rows="3" maxlength="1500"></textarea>
-        <div id="packChip" class="pack-chip" hidden></div>
-      </div>
-      <div id="samples" class="samples" aria-label="Sample decisions"></div>
+      <div class="hero">
+        <div id="scene" class="scene" aria-hidden="true">
+          <svg id="constellation" class="scene-svg" role="img" aria-label="Committee map: seven departments around the Company Brain" hidden></svg>
+        </div>
+        <div id="mapTip" class="map-tip" role="tooltip" hidden></div>
 
-      <div class="stage">
-        <div class="map-wrap">
-          <svg id="constellation" role="group" aria-label="Committee map: seven departments around the Company Brain"></svg>
-          <div id="mapTip" class="map-tip" role="tooltip" hidden></div>
+        <div class="hero-lead">
+          <p class="hero-kicker">Seven departments · one Company Brain</p>
           <p id="mapCaption" class="map-caption" aria-live="polite"></p>
         </div>
 
-        <aside class="rail" aria-label="Committee settings">
-          <section class="rail-block">
+        <aside id="focusPanel" class="focus-panel" hidden></aside>
+
+        <div class="hero-bottom">
+          <form id="askForm" class="ask" autocomplete="off">
+            <label for="decision" class="sr-only">Decision for the committee</label>
+            <textarea id="decision" rows="1" maxlength="2000" placeholder="Put a decision to the committee…"></textarea>
+            <button type="button" id="contextToggle" class="ask-ghost" aria-expanded="false" aria-controls="contextPanel">Context</button>
+            <button type="submit" id="convene" class="ask-go">Convene committee</button>
+          </form>
+          <div id="contextPanel" class="context-panel" hidden>
+            <label for="context">Company context the departments should assume</label>
+            <textarea id="context" rows="3" maxlength="1500"></textarea>
+            <div id="packChip" class="pack-chip" hidden></div>
+          </div>
+          <div id="samples" class="samples" aria-label="Sample decisions"></div>
+          <p class="hero-hint">Hover a department to fly in · click to meet its agents · <a href="#board">scroll for the boardroom</a></p>
+        </div>
+
+        <p class="hero-credit">Built by <a href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener">Ayman Khayat</a></p>
+      </div>
+
+      <div class="below" id="board">
+        <div class="controls-strip">
+          <section class="rail-block metal">
             <div class="rail-head">
               <h2>Company culture</h2>
               <button type="button" id="resetWeights" class="link-btn">Reset</button>
@@ -73,38 +94,38 @@
             <div id="culture" class="culture" role="radiogroup" aria-label="Culture preset"></div>
             <div id="weights" class="weights"></div>
           </section>
-          <section class="rail-block">
+          <section class="rail-block metal">
             <h2>Committee lean</h2>
             <div id="gauge" class="gauge"></div>
             <p id="leanText" class="lean-text"></p>
           </section>
-          <section class="rail-block rail-cost">
+          <section class="rail-block metal">
             <h2>This run</h2>
             <p id="runEstimate" class="run-estimate"></p>
           </section>
-        </aside>
-      </div>
-
-      <div id="boardBar" class="board-bar" hidden>
-        <div class="seg" role="radiogroup" aria-label="View">
-          <button type="button" role="radio" aria-checked="true" data-view-mode="boardroom">Boardroom</button>
-          <button type="button" role="radio" aria-checked="false" data-view-mode="quick">Quick verdict</button>
         </div>
-        <label class="switch"><input type="checkbox" id="showConflict"><span class="switch-track" aria-hidden="true"></span>Show disagreement</label>
-        <span class="bar-spacer"></span>
-        <button type="button" id="reconvene" class="btn btn-quiet" hidden>Re-convene the Brain</button>
-        <button type="button" id="exportMemo" class="btn btn-quiet">Export IC memo</button>
+
+        <div id="boardBar" class="board-bar" hidden>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <button type="button" role="radio" aria-checked="true" data-view-mode="boardroom">Boardroom</button>
+            <button type="button" role="radio" aria-checked="false" data-view-mode="quick">Quick verdict</button>
+          </div>
+          <label class="switch"><input type="checkbox" id="showConflict"><span class="switch-track" aria-hidden="true"></span>Show disagreement</label>
+          <span class="bar-spacer"></span>
+          <button type="button" id="reconvene" class="btn btn-quiet" hidden>Re-convene the Brain</button>
+          <button type="button" id="exportMemo" class="btn btn-quiet">Export IC memo</button>
+        </div>
+
+        <div id="staleNote" class="stale-note" hidden></div>
+        <section id="brainCard" class="brain-card" aria-live="polite" hidden></section>
+        <section id="yourCall" class="your-call" hidden></section>
+        <section id="deptGrid" class="dept-grid" aria-label="Department verdicts"></section>
+
+        <section class="sim-history" aria-labelledby="hist-title">
+          <h2 id="hist-title">Previous committees</h2>
+          <ol id="simHistory" class="sim-history-list"></ol>
+        </section>
       </div>
-
-      <div id="staleNote" class="stale-note" hidden></div>
-      <section id="brainCard" class="brain-card" aria-live="polite" hidden></section>
-      <section id="yourCall" class="your-call" hidden></section>
-      <section id="deptGrid" class="dept-grid" aria-label="Department verdicts"></section>
-
-      <section class="sim-history" aria-labelledby="hist-title">
-        <h2 id="hist-title">Previous committees</h2>
-        <ol id="simHistory" class="sim-history-list"></ol>
-      </section>
     </section>
 
     <!-- CALCULATOR -->
@@ -124,6 +145,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <footer class="foot">
+    <p class="foot-credit">Built by <a href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener">Ayman Khayat</a> · <a href="https://github.com/aymankhayat/capital-committee" target="_blank" rel="noopener">Source on GitHub</a></p>
     <p>Departments and the Company Brain run on the Claude API through a server-side proxy; your key never reaches the browser. Figures and sources: <a href="https://github.com/aymankhayat/capital-committee/tree/main/docs/research">docs/research</a>. Not investment advice.</p>
   </footer>
 </body>

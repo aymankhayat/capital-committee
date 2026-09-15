@@ -22,12 +22,14 @@ const S = {
   conflict: false,
   pack: null,
   busy: false,
+  focus: null,
 };
-let map;
+// Calls made before the scene finishes loading land here harmlessly.
+const NOOP_MAP = { setDept() {}, setBrain() {}, setConflicts() {}, focus() {}, reset() {} };
+let map = NOOP_MAP;
 
 export function initSimulation() {
-  map = createConstellation($('#constellation'), { onSelect: focusCard, tipEl: $('#mapTip'), tipContent });
-  DEPTS.forEach(d => map.setDept(d.id, S.enabled[d.id] ? 'idle' : 'off'));
+  initMap();
   $('#context').value = store.get('context', DEFAULT_CONTEXT);
 
   const ta = $('#decision');
@@ -58,6 +60,10 @@ export function initSimulation() {
     const b = e.target.closest('[data-act="retry"]');
     if (b) retryDept(b.dataset.id);
   });
+  $('#focusPanel').addEventListener('click', e => {
+    if (e.target.closest('[data-act="close-focus"]')) { S.focus = null; map.focus?.(null); renderFocusPanel(); }
+    if (e.target.closest('[data-act="open-card"]')) focusCard(S.focus);
+  });
   $('#yourCall').addEventListener('click', e => {
     const b = e.target.closest('[data-pick]');
     if (!b || !S.run) return;
@@ -70,6 +76,76 @@ export function initSimulation() {
   on('pack', attachPack);
   on('tier', updateEstimate);
   on('health', () => { renderSamples(); updateEstimate(); idleCaption(); });
+}
+
+// ---------------------------------------------------------------- the map
+
+async function initMap() {
+  const host = $('#scene');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let webgl = false;
+  try { webgl = !!document.createElement('canvas').getContext('webgl2'); } catch { webgl = false; }
+  if (webgl && !reduce) {
+    try {
+      const { createScene3D } = await import('./scene3d.js');
+      map = await createScene3D(host, { depts: DEPTS, onSelect: selectDept, onHover: showTip, onHoverEnd: hideTip });
+    } catch (e) {
+      console.warn('3D scene unavailable, falling back to the flat map:', e);
+    }
+  }
+  if (map === NOOP_MAP) {
+    const svg = $('#constellation');
+    svg.hidden = false;
+    map = createConstellation(svg, { onSelect: selectDept, tipEl: $('#mapTip'), tipContent });
+  }
+  // Re-apply whatever state already exists (a restored run, or departments switched off).
+  DEPTS.forEach(d => {
+    const v = S.run?.verdicts[d.id];
+    map.setDept(d.id, !S.enabled[d.id] ? 'off' : v ? 'done' : S.run?.errors[d.id] ? 'error' : 'idle', v);
+  });
+  if (S.run?.brain) map.setBrain('done', DECISIONS[S.run.brain.decision]);
+}
+
+function showTip(id, x, y) {
+  const tip = $('#mapTip');
+  tip.innerHTML = tipContent(id);
+  tip.hidden = false;
+  const box = $('.hero').getBoundingClientRect();
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = `${Math.max(12, Math.min(box.width - w - 12, x - box.left - w / 2))}px`;
+  tip.style.top = `${Math.max(12, y - box.top - h - 20)}px`;
+}
+function hideTip() { $('#mapTip').hidden = true; }
+
+function selectDept(id) {
+  // id === null arrives when the scene is clicked away from a hub.
+  S.focus = !id ? null : S.focus === id ? null : id;
+  map.focus?.(S.focus);
+  hideTip();
+  renderFocusPanel();
+}
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.focus) selectDept(null);
+});
+
+// The zoomed-in view: the department's standing agents, or, once it has
+// reported, what each agent contributed to the verdict.
+function renderFocusPanel() {
+  const el = $('#focusPanel');
+  const id = S.focus;
+  if (!id) { el.hidden = true; return; }
+  const d = byId[id];
+  const v = S.run?.verdicts[id];
+  el.hidden = false;
+  el.style.setProperty('--dc', d.color);
+  el.innerHTML = `<h3>${iconSvg(d, 16)} ${esc(d.name)}</h3>
+    <p class="fp-sub">${v ? `${esc(v.stance)} · ${v.confidence}% confident` : !S.enabled[id] ? 'not on this committee' : S.run ? 'still deliberating' : 'no verdict yet'}</p>
+    ${v ? `<p class="fp-line">${esc(v.headline)}</p>` : ''}
+    <ul class="fp-agents">${d.agents.map((a, i) => `<li><b>${esc(a.name)}</b><span>${esc(v?.reasons?.[i] || a.watches)}</span></li>`).join('')}</ul>
+    ${v ? `<p class="fp-sub">${esc(v.key_metric.label)}: <b class="num">${esc(v.key_metric.value)}</b></p>` : ''}
+    <div class="fp-actions">${v ? '<button type="button" class="btn" data-act="open-card">Open full verdict</button>' : ''}
+      <button type="button" class="btn btn-quiet" data-act="close-focus">Close</button></div>`;
 }
 
 // ---------------------------------------------------------------- inputs
@@ -376,7 +452,7 @@ function updateEstimate() {
 // ---------------------------------------------------------------- board
 
 function renderBoard() {
-  renderBrain(); renderYourCall(); renderCards(); renderStale();
+  renderBrain(); renderYourCall(); renderCards(); renderStale(); renderFocusPanel();
   map.setConflicts(S.conflict ? conflictPairs() : []);
 }
 

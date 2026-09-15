@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capital Committee</title>
+  <meta name="description" content="Run a capital decision through a simulated investment committee of seven AI departments, model it with NPV, IRR and tornado sensitivity, and drill consulting case interviews.">
+  <meta name="theme-color" content="#262B45">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="brand" href="#simulation" aria-label="Capital Committee, home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="3.2"/><g><circle cx="16" cy="4.5" r="1.6"/><circle cx="26.5" cy="10.5" r="1.6"/><circle cx="26.5" cy="21.5" r="1.6"/><circle cx="16" cy="27.5" r="1.6"/><circle cx="5.5" cy="21.5" r="1.6"/><circle cx="5.5" cy="10.5" r="1.6"/></g><path d="M16 12.8V6.1M18.8 14.4l6-3.2M18.8 17.6l6 3.2M16 19.2v6.7M13.2 17.6l-6 3.2M13.2 14.4l-6-3.2"/></svg>
+      <span class="brand-text"><span class="brand-name">Capital Committee</span><span class="brand-sub">Engineering economics &amp; case practice</span></span>
+    </a>
+    <nav class="modes" aria-label="Mode">
+      <a href="#simulation" data-mode="simulation">Simulation</a>
+      <a href="#calculator" data-mode="calculator">Calculator</a>
+      <a href="#practice" data-mode="practice">Case practice</a>
+    </nav>
+    <div class="status">
+      <span id="liveBadge" class="live-badge" data-state="checking"><span class="dot" aria-hidden="true"></span><span class="live-text">Checking server</span></span>
+      <label class="tier">
+        <span class="sr-only">Model tier</span>
+        <select id="tier">
+          <option value="standard">Opus 5 · standard</option>
+          <option value="economy">Sonnet 5 departments · economy</option>
+        </select>
+      </label>
+      <span id="sessionCost" class="session-cost" title="Claude API spend from this browser session">$0.000 spent</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- COMPANY SIMULATION (main page) -->
+    <section id="view-simulation" class="view" data-view="simulation" aria-labelledby="sim-title">
+      <h1 id="sim-title" class="sr-only">Company simulation</h1>
+
+      <form id="askForm" class="ask" autocomplete="off">
+        <label for="decision" class="sr-only">Decision for the committee</label>
+        <textarea id="decision" rows="1" maxlength="2000" placeholder="Put a decision to the committee…"></textarea>
+        <button type="button" id="contextToggle" class="ask-ghost" aria-expanded="false" aria-controls="contextPanel">Context</button>
+        <button type="submit" id="convene" class="ask-go">Convene committee</button>
+      </form>
+      <div id="contextPanel" class="context-panel" hidden>
+        <label for="context">Company context the departments should assume</label>
+        <textarea id="context" rows="3" maxlength="1500"></textarea>
+        <div id="packChip" class="pack-chip" hidden></div>
+      </div>
+      <div id="samples" class="samples" aria-label="Sample decisions"></div>
+
+      <div class="stage">
+        <div class="map-wrap">
+          <svg id="constellation" role="group" aria-label="Committee map: seven departments around the Company Brain"></svg>
+          <div id="mapTip" class="map-tip" role="tooltip" hidden></div>
+          <p id="mapCaption" class="map-caption" aria-live="polite"></p>
+        </div>
+
+        <aside class="rail" aria-label="Committee settings">
+          <section class="rail-block">
+            <div class="rail-head">
+              <h2>Company culture</h2>
+              <button type="button" id="resetWeights" class="link-btn">Reset</button>
+            </div>
+            <div id="culture" class="culture" role="radiogroup" aria-label="Culture preset"></div>
+            <div id="weights" class="weights"></div>
+          </section>
+          <section class="rail-block">
+            <h2>Committee lean</h2>
+            <div id="gauge" class="gauge"></div>
+            <p id="leanText" class="lean-text"></p>
+          </section>
+          <section class="rail-block rail-cost">
+            <h2>This run</h2>
+            <p id="runEstimate" class="run-estimate"></p>
+          </section>
+        </aside>
+      </div>
+
+      <div id="boardBar" class="board-bar" hidden>
+        <div class="seg" role="radiogroup" aria-label="View">
+          <button type="button" role="radio" aria-checked="true" data-view-mode="boardroom">Boardroom</button>
+          <button type="button" role="radio" aria-checked="false" data-view-mode="quick">Quick verdict</button>
+        </div>
+        <label class="switch"><input type="checkbox" id="showConflict"><span class="switch-track" aria-hidden="true"></span>Show disagreement</label>
+        <span class="bar-spacer"></span>
+        <button type="button" id="reconvene" class="btn btn-quiet" hidden>Re-convene the Brain</button>
+        <button type="button" id="exportMemo" class="btn btn-quiet">Export IC memo</button>
+      </div>
+
+      <div id="staleNote" class="stale-note" hidden></div>
+      <section id="brainCard" class="brain-card" aria-live="polite" hidden></section>
+      <section id="yourCall" class="your-call" hidden></section>
+      <section id="deptGrid" class="dept-grid" aria-label="Department verdicts"></section>
+
+      <section class="sim-history" aria-labelledby="hist-title">
+        <h2 id="hist-title">Previous committees</h2>
+        <ol id="simHistory" class="sim-history-list"></ol>
+      </section>
+    </section>
+
+    <!-- CALCULATOR -->
+    <section id="view-calculator" class="view" data-view="calculator" aria-labelledby="calc-title" hidden>
+      <h1 id="calc-title" class="sr-only">Engineering economics calculator</h1>
+      <div id="calcRoot"></div>
+    </section>
+
+    <!-- CASE PRACTICE -->
+    <section id="view-practice" class="view" data-view="practice" aria-labelledby="prac-title" hidden>
+      <h1 id="prac-title" class="sr-only">Case practice</h1>
+      <div id="practiceRoot"></div>
+    </section>
+  </main>
+
+  <div id="memo" class="memo" aria-hidden="true"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="foot">
+    <p>Departments and the Company Brain run on the Claude API through a server-side proxy; your key never reaches the browser. Figures and sources: <a href="https://github.com/aymankhayat/capital-committee/tree/main/docs/research">docs/research</a>. Not investment advice.</p>
+  </footer>
+</body>
+</html>

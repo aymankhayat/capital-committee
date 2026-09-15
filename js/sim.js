@@ -43,7 +43,7 @@ export function initSimulation() {
   $('#askForm').addEventListener('submit', e => { e.preventDefault(); convene(); });
   $('#contextToggle').addEventListener('click', () => toggleContext());
   $('#context').addEventListener('change', e => store.set('context', e.target.value));
-  $('#contextPanel').addEventListener('click', e => { if (e.target.closest('[data-act="drop-pack"]')) attachPack(null); });
+  $('#packChip').addEventListener('click', e => { if (e.target.closest('[data-act="drop-pack"]')) attachPack(null); });
   $('#resetWeights').addEventListener('click', () => applyCulture('balanced'));
 
   $$('#boardBar [data-view-mode]').forEach(b => b.addEventListener('click', () => {
@@ -178,7 +178,7 @@ function attachPack(p) {
   chip.hidden = false;
   chip.innerHTML = `<strong>Committee pack attached</strong><span>${esc(p.label)}</span><button type="button" class="link-btn" data-act="drop-pack">Remove</button>`;
   if (p.decision && !$('#decision').value.trim()) { $('#decision').value = p.decision; $('#decision').dispatchEvent(new Event('input')); }
-  toggleContext(true);
+  // Leave the context panel closed: on a short screen it would cover the tree.
 }
 
 function renderCulture() {

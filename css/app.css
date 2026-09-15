@@ -639,14 +639,17 @@ input[type="range"] { width: 100%; accent-color: var(--dc, var(--ink)); height: 
   box-shadow: 0 24px 60px -30px #000, inset 0 1px 0 rgba(255,255,255,.06);
   backdrop-filter: blur(10px);
 }
-.hero-bottom .ask textarea { color: var(--ink); }
+/* keep the bar compact over the scene; long text scrolls inside it */
+.hero-bottom .ask textarea { color: var(--ink); max-height: 84px; }
 .hero-bottom .ask textarea::placeholder { color: var(--ink-3); }
 .hero-bottom .ask-ghost { color: var(--ink-2); }
 .hero-bottom .ask-ghost:hover { background: var(--surface-3); }
 .hero-bottom .ask-go { background: linear-gradient(160deg, #E9ECF7, #AEB6D0); color: #06070D; font-weight: 600; }
 .hero-bottom .ask-go:hover { background: linear-gradient(160deg, #fff, #C9CFE4); }
 .hero-bottom .ask:focus-within { box-shadow: 0 0 0 1px var(--star), 0 24px 60px -30px #000; }
-.hero-bottom .context-panel { width: min(880px, 100%); }
+.hero-bottom .context-panel { width: min(680px, 100%); }
+.hero-bottom .context-panel textarea { max-height: 92px; }
+.hero-bottom .pack-chip { width: min(680px, 100%); }
 .hero-bottom .samples { margin: 0; }
 .hero-bottom .sample-chip { background: rgba(10,12,20,.72); backdrop-filter: blur(6px); }
 .hero-bottom .samples { max-width: 760px; }

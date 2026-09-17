@@ -88,7 +88,9 @@ function renderList() {
 function exhibitLabel(x) {
   if (x.trim().startsWith('|')) return 'Data table';
   const first = x.split('\n')[0].replace(/^[-*]\s*/, '').replace(/[*`]/g, '').replace(/^\*?Distractor:\*?\s*/i, '');
-  const cut = first.split(/[:(]/)[0].trim();
+  let cut = first.split(/[:(]/)[0].trim();
+  // "(Sanity check, bottom-up) Assume…" starts with a parenthesis: label it by that.
+  if (!cut) cut = first.match(/^\(([^)]+)\)/)?.[1] || first;
   return cut.length > 52 ? `${cut.slice(0, 50)}…` : cut;
 }
 

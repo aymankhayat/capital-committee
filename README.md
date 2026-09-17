@@ -2,12 +2,17 @@
 
 **Engineering economics & case practice.** Put a capital decision in front of a simulated investment committee of seven Claude-powered departments, model it with NPV / IRR / tornado sensitivity, and drill consulting case interviews, all grounded in sourced GCC and industry figures.
 
-![Company Simulation](docs/screenshot-simulation.png)
+**[Live demo](https://aymankhayat.github.io/capital-committee/)** · **[Case study](CASE_STUDY.md)** · Designed & built by **[Ayman Khayat](https://www.linkedin.com/in/ayman-khayat-350b4b335)**
+
+![Capital Committee](docs/screenshot.png)
+
+> The live demo runs in demo mode on GitHub Pages: sample committees replay, and the calculator and case practice work fully. Live AI runs need the serverless API on Vercel with an `ANTHROPIC_API_KEY` (see Deploy).
+> The hero and boardroom images are concept images made with Higgsfield from the project's real renders, and are labelled as such on the site. Prompts are logged in [`docs/higgsfield_prompts.md`](docs/higgsfield_prompts.md).
 
 ## Three modes
 
 ### 1. Company Simulation (main page)
-The landing screen is a full-viewport 3D committee map (three.js): metallic department hubs orbiting the Company Brain, a live particle core, drifting dust and beads of light flowing along each department's link. Hovering a department flies the camera in and sets off a burst of its colour; clicking zooms further and reveals that department's specialist agents, with the panel showing what each one contributed once a verdict is in. Everything else is one scroll below. Without WebGL, or with reduced motion requested, it falls back to the flat SVG map.
+The page opens on a rounded hero panel, followed by a **Live Committee** section holding the real app: a 3D committee map (three.js) of metallic department hubs orbiting the Company Brain, with a live particle core, drifting dust and beads of light flowing along each department's link. Hovering a department flies the camera in and sets off a burst of its colour. Clicking zooms further and reveals that department's four specialist agents; once a verdict is in, the panel shows what each agent contributed. Without WebGL, or with reduced motion requested, it falls back to the flat SVG map. The render loop pauses while the scene is off-screen.
 
 A decision runs through seven department agents, **in parallel**, each a separate Claude call with its own persona:
 

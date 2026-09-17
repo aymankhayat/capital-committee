@@ -2,14 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Capital Committee</title>
-  <meta name="description" content="Run a capital decision through a simulated investment committee of seven AI departments, model it with NPV, IRR and tornado sensitivity, and drill consulting case interviews.">
-  <meta name="theme-color" content="#04050A">
+  <meta name="description" content="Put a capital decision to seven AI departments and a Company Brain, stress-test it with NPV, IRR and tornado sensitivity, and drill 16 consulting cases. Designed and built by Ayman Khayat.">
+  <link rel="canonical" href="https://aymankhayat.github.io/capital-committee/">
+  <meta name="author" content="Ayman Khayat">
+  <meta name="theme-color" content="#050506">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Capital Committee">
+  <meta property="og:title" content="Capital Committee: seven AI departments argue your capital decision">
+  <meta property="og:description" content="7 Claude-powered departments, 1 Company Brain, 16 consulting cases and an NPV, IRR and tornado calculator. Designed and built by Ayman Khayat.">
+  <meta property="og:url" content="https://aymankhayat.github.io/capital-committee/">
+  <meta property="og:image" content="https://aymankhayat.github.io/capital-committee/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="627">
+  <meta property="og:image:alt" content="Capital Committee: seven glowing department orbs around a Company Brain, with project stats">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Capital Committee: seven AI departments argue your capital decision">
+  <meta name="twitter:description" content="7 Claude-powered departments, 1 Company Brain, 16 consulting cases and an NPV, IRR and tornado calculator.">
+  <meta name="twitter:image" content="https://aymankhayat.github.io/capital-committee/assets/og-card.png">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" type="image/webp" href="assets/img/ai-hero-2400.webp" imagesrcset="assets/img/ai-hero-1200.webp 1200w, assets/img/ai-hero-2400.webp 2400w" imagesizes="(max-width: 980px) 100vw, 72vw">
   <link rel="stylesheet" href="css/app.css">
   <script type="importmap">
   {
@@ -22,15 +38,20 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <a class="skip" href="#board">Skip to the boardroom</a>
+  <a class="skip" href="#main">Skip to content</a>
 
   <header class="topbar">
     <a class="brand" href="#simulation" aria-label="Capital Committee, home">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="3.2"/><g><circle cx="16" cy="4.5" r="1.6"/><circle cx="26.5" cy="10.5" r="1.6"/><circle cx="26.5" cy="21.5" r="1.6"/><circle cx="16" cy="27.5" r="1.6"/><circle cx="5.5" cy="21.5" r="1.6"/><circle cx="5.5" cy="10.5" r="1.6"/></g><path d="M16 12.8V6.1M18.8 14.4l6-3.2M18.8 17.6l6 3.2M16 19.2v6.7M13.2 17.6l-6 3.2M13.2 14.4l-6-3.2"/></svg>
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="bm" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#D9A93A"/><stop offset=".5" stop-color="#8A5CFF"/><stop offset="1" stop-color="#4F7BFF"/></linearGradient></defs>
+        <circle cx="16" cy="16" r="14" fill="none" stroke="url(#bm)" stroke-width="1.6"/>
+        <circle cx="16" cy="16" r="3.4" fill="#fff"/>
+        <g fill="#fff"><circle cx="16" cy="6.5" r="1.5"/><circle cx="24.2" cy="11.2" r="1.5"/><circle cx="24.2" cy="20.8" r="1.5"/><circle cx="16" cy="25.5" r="1.5"/><circle cx="7.8" cy="20.8" r="1.5"/><circle cx="7.8" cy="11.2" r="1.5"/></g>
+      </svg>
       <span class="brand-text"><span class="brand-name">Capital Committee</span><span class="brand-sub">Engineering economics &amp; case practice</span></span>
     </a>
     <nav class="modes" aria-label="Mode">
-      <a href="#simulation" data-mode="simulation">Simulation</a>
+      <a href="#simulation" data-mode="simulation">Committee</a>
       <a href="#calculator" data-mode="calculator">Calculator</a>
       <a href="#practice" data-mode="practice">Case practice</a>
     </nav>
@@ -48,94 +69,332 @@
   </header>
 
   <main id="main">
-    <!-- COMPANY SIMULATION (main page) -->
-    <section id="view-simulation" class="view" data-view="simulation" aria-labelledby="sim-title">
-      <h1 id="sim-title" class="sr-only">Company simulation</h1>
+    <!-- ======================= LANDING + COMPANY SIMULATION ======================= -->
+    <section id="view-simulation" class="view" data-view="simulation" aria-labelledby="hero-title">
 
-      <div class="hero">
-        <div id="scene" class="scene" aria-hidden="true">
-          <svg id="constellation" class="scene-svg" role="img" aria-label="Committee map: seven departments around the Company Brain" hidden></svg>
-        </div>
-        <div id="mapTip" class="map-tip" role="tooltip" hidden></div>
-
-        <div class="hero-lead">
-          <p class="hero-kicker">Seven departments · one Company Brain</p>
-          <p id="mapCaption" class="map-caption" aria-live="polite"></p>
-        </div>
-
-        <aside id="focusPanel" class="focus-panel" hidden></aside>
-
-        <div class="hero-bottom">
-          <form id="askForm" class="ask" autocomplete="off">
-            <label for="decision" class="sr-only">Decision for the committee</label>
-            <textarea id="decision" rows="1" maxlength="2000" placeholder="Put a decision to the committee…"></textarea>
-            <button type="button" id="contextToggle" class="ask-ghost" aria-expanded="false" aria-controls="contextPanel">Context</button>
-            <button type="submit" id="convene" class="ask-go">Convene committee</button>
-          </form>
-          <div id="contextPanel" class="context-panel" hidden>
-            <label for="context">Company context the departments should assume</label>
-            <textarea id="context" rows="3" maxlength="1500"></textarea>
-          </div>
-          <div id="packChip" class="pack-chip" hidden></div>
-          <div id="samples" class="samples" aria-label="Sample decisions"></div>
-          <p class="hero-hint">Hover a department to fly in · click to meet its agents · <a href="#board">scroll for the boardroom</a></p>
-        </div>
-
-        <p class="hero-credit">Built by <a href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener">Ayman Khayat</a></p>
-      </div>
-
-      <div class="below" id="board">
-        <div class="controls-strip">
-          <section class="rail-block metal">
-            <div class="rail-head">
-              <h2>Company culture</h2>
-              <button type="button" id="resetWeights" class="link-btn">Reset</button>
+      <div class="hero-shell">
+        <section class="mhero" id="top">
+          <picture class="mhero-art">
+            <source type="image/webp" srcset="assets/img/ai-hero-1200.webp 1200w, assets/img/ai-hero-2400.webp 2400w" sizes="(max-width: 980px) 100vw, 72vw">
+            <img src="assets/img/ai-hero-2400.jpg" width="2400" height="1018" fetchpriority="high" alt="Concept render of the committee: seven metallic department orbs, each with orbital rings, around a glowing particle Company Brain">
+          </picture>
+          <span class="ai-note mhero-note">Concept image · Higgsfield, from the real project</span>
+          <div class="rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="mhero-copy">
+            <div class="eyebrow">Capital Committee · AI investment committee</div>
+            <h1 id="hero-title">Capital Decisions, Argued <em>Like a Boardroom</em></h1>
+            <p class="mhero-sub">Put a capital decision to seven AI departments, from Finance to Sustainability, and a Company Brain that rules on it. Then stress-test the numbers and drill the cases consultants actually use.</p>
+            <div class="mhero-cta">
+              <a class="btn-glow" href="#committee">Convene the committee</a>
+              <a class="ghost-link" href="https://github.com/aymankhayat/capital-committee/blob/main/CASE_STUDY.md" target="_blank" rel="noopener">Read the case study →</a>
             </div>
-            <div id="culture" class="culture" role="radiogroup" aria-label="Culture preset"></div>
-            <div id="weights" class="weights"></div>
-          </section>
-          <section class="rail-block metal">
-            <h2>Committee lean</h2>
-            <div id="gauge" class="gauge"></div>
-            <p id="leanText" class="lean-text"></p>
-          </section>
-          <section class="rail-block metal">
-            <h2>This run</h2>
-            <p id="runEstimate" class="run-estimate"></p>
-          </section>
-        </div>
-
-        <div id="boardBar" class="board-bar" hidden>
-          <div class="seg" role="radiogroup" aria-label="View">
-            <button type="button" role="radio" aria-checked="true" data-view-mode="boardroom">Boardroom</button>
-            <button type="button" role="radio" aria-checked="false" data-view-mode="quick">Quick verdict</button>
           </div>
-          <label class="switch"><input type="checkbox" id="showConflict"><span class="switch-track" aria-hidden="true"></span>Show disagreement</label>
-          <span class="bar-spacer"></span>
-          <button type="button" id="reconvene" class="btn btn-quiet" hidden>Re-convene the Brain</button>
-          <button type="button" id="exportMemo" class="btn btn-quiet">Export IC memo</button>
-        </div>
-
-        <div id="staleNote" class="stale-note" hidden></div>
-        <section id="brainCard" class="brain-card" aria-live="polite" hidden></section>
-        <section id="yourCall" class="your-call" hidden></section>
-        <section id="deptGrid" class="dept-grid" aria-label="Department verdicts"></section>
-
-        <section class="sim-history" aria-labelledby="hist-title">
-          <h2 id="hist-title">Previous committees</h2>
-          <ol id="simHistory" class="sim-history-list"></ol>
+          <div class="ticker" aria-hidden="true"><div id="ticker"></div></div>
         </section>
       </div>
+
+      <!-- Dark split: the idea -->
+      <section class="dark" id="departments" aria-labelledby="dept-title">
+        <div class="wrap split">
+          <figure class="shot ratio-43" data-reveal>
+            <picture>
+              <source type="image/webp" srcset="assets/img/ai-boardroom-1400.webp">
+              <img src="assets/img/ai-boardroom-1400.jpg" width="1400" height="1045" loading="lazy" decoding="async" alt="Concept photo: a laptop running Capital Committee on a boardroom table at night, city lights behind">
+            </picture>
+            <figcaption class="ai-note">Concept image · Higgsfield, from the real project</figcaption>
+          </figure>
+          <div class="copy" data-reveal>
+            <div class="eyebrow">Built like a real investment committee</div>
+            <h2 class="caps" id="dept-title">Seven Departments.<br>One Brain.</h2>
+            <p>Finance argues from the hurdle rate. Legal holds a narrow veto. Operations wants a Class 3 estimate before anyone signs. Each department is its own Claude call with its own persona and its own blind spots, and all seven run at once. The Company Brain rules only after every department has reported.</p>
+            <div class="stats">
+              <div><b>7</b><span>departments</span></div>
+              <div><b>8</b><span>AI calls per committee</span></div>
+              <div><b>$0.41</b><span>est. per run, Opus 5</span></div>
+            </div>
+            <a class="pill" href="#committee">Know More <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+        </div>
+
+        <!-- The live app -->
+        <div class="wrap" id="committee">
+          <div class="lab-head" data-reveal>
+            <h2>Live <span>Committee</span></h2>
+            <p>The real app. Hover a department to fly in and click it to meet its agents. Pick a sample decision and press Convene: with no API key on the server it replays a sample committee.</p>
+          </div>
+
+          <div class="hero">
+            <div id="scene" class="scene" aria-hidden="true">
+              <svg id="constellation" class="scene-svg" role="img" aria-label="Committee map: seven departments around the Company Brain" hidden></svg>
+            </div>
+            <div id="mapTip" class="map-tip" role="tooltip" hidden></div>
+
+            <div class="hero-lead">
+              <p class="hero-kicker">Seven departments · one Company Brain</p>
+              <p id="mapCaption" class="map-caption" aria-live="polite"></p>
+            </div>
+
+            <aside id="focusPanel" class="focus-panel" hidden></aside>
+
+            <div class="hero-bottom">
+              <form id="askForm" class="ask" autocomplete="off">
+                <label for="decision" class="sr-only">Decision for the committee</label>
+                <textarea id="decision" rows="1" maxlength="2000" placeholder="Put a decision to the committee…"></textarea>
+                <button type="button" id="contextToggle" class="ask-ghost" aria-expanded="false" aria-controls="contextPanel">Context</button>
+                <button type="submit" id="convene" class="ask-go">Convene committee</button>
+              </form>
+              <div id="contextPanel" class="context-panel" hidden>
+                <label for="context">Company context the departments should assume</label>
+                <textarea id="context" rows="3" maxlength="1500"></textarea>
+              </div>
+              <div id="packChip" class="pack-chip" hidden></div>
+              <div id="samples" class="samples" aria-label="Sample decisions"></div>
+              <p class="hero-hint">Hover a department to fly in · click to meet its agents · <a href="#board">results below</a></p>
+            </div>
+          </div>
+
+          <div class="below" id="board">
+            <div class="controls-strip">
+              <section class="rail-block metal">
+                <div class="rail-head">
+                  <h2>Company culture</h2>
+                  <button type="button" id="resetWeights" class="link-btn">Reset</button>
+                </div>
+                <div id="culture" class="culture" role="radiogroup" aria-label="Culture preset"></div>
+                <div id="weights" class="weights"></div>
+              </section>
+              <section class="rail-block metal">
+                <h2>Committee lean</h2>
+                <div id="gauge" class="gauge"></div>
+                <p id="leanText" class="lean-text"></p>
+              </section>
+              <section class="rail-block metal">
+                <h2>This run</h2>
+                <p id="runEstimate" class="run-estimate"></p>
+              </section>
+            </div>
+
+            <div id="boardBar" class="board-bar" hidden>
+              <div class="seg" role="radiogroup" aria-label="View">
+                <button type="button" role="radio" aria-checked="true" data-view-mode="boardroom">Boardroom</button>
+                <button type="button" role="radio" aria-checked="false" data-view-mode="quick">Quick verdict</button>
+              </div>
+              <label class="switch"><input type="checkbox" id="showConflict"><span class="switch-track" aria-hidden="true"></span>Show disagreement</label>
+              <span class="bar-spacer"></span>
+              <button type="button" id="reconvene" class="btn btn-quiet" hidden>Re-convene the Brain</button>
+              <button type="button" id="exportMemo" class="btn btn-quiet">Export IC memo</button>
+            </div>
+
+            <div id="staleNote" class="stale-note" hidden></div>
+            <section id="brainCard" class="brain-card" aria-live="polite" hidden></section>
+            <section id="yourCall" class="your-call" hidden></section>
+            <section id="deptGrid" class="dept-grid" aria-label="Department verdicts"></section>
+
+            <section class="sim-history" aria-labelledby="hist-title">
+              <h2 id="hist-title">Previous committees</h2>
+              <ol id="simHistory" class="sim-history-list"></ol>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- Light split: calculator -->
+      <section class="light" id="calculator-intro" aria-labelledby="calc-intro-title">
+        <div class="rings soft ring-a" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="wrap split">
+          <div class="copy" data-reveal>
+            <div class="eyebrow">Engineering economics</div>
+            <h2 class="caps" id="calc-intro-title">Every Assumption,<br>Stress-Tested.</h2>
+            <p>An assumptions sheet with blue inputs, a live WACC slider with Gulf reference bands, and NPV, IRR, MIRR, payback and LCOE. The tornado swings each driver between real engineering lows and highs, so you can see which ones actually move the answer.</p>
+            <div class="stats">
+              <div><b>4</b><span>sourced presets</span></div>
+              <div><b>8</b><span>tornado drivers</span></div>
+              <div><b>5/5</b><span>engine tests</span></div>
+            </div>
+            <a class="pill" href="#calculator">Know More <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+          <figure class="shot ratio-1610" data-reveal>
+            <picture>
+              <source type="image/webp" srcset="assets/img/real-tornado-1600.webp">
+              <img src="assets/img/real-tornado-1600.jpg" width="1600" height="1001" loading="lazy" decoding="async" alt="Screenshot of the tornado exhibit: avoided tariff and initial cost swing the solar project's NPV by $5.12M and $3.61M">
+            </picture>
+            <figcaption class="ai-note">Real screenshot · Calculator</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Light split (flipped): case practice -->
+      <section class="light flip-sec" id="practice-intro" aria-labelledby="prac-intro-title">
+        <div class="rings soft ring-b" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="wrap split flip">
+          <figure class="shot ratio-1610" data-reveal>
+            <picture>
+              <source type="image/webp" srcset="assets/img/real-practice-1600.webp">
+              <img src="assets/img/real-practice-1600.jpg" width="1600" height="944" loading="lazy" decoding="async" alt="Screenshot of case practice: the Riyadh specialty coffee market-sizing case with requestable exhibits and a progress panel">
+            </picture>
+            <figcaption class="ai-note">Real screenshot · Case practice</figcaption>
+          </figure>
+          <div class="copy" data-reveal>
+            <div class="eyebrow">Consulting case practice</div>
+            <h2 class="caps" id="prac-intro-title">Sixteen Cases.<br>Two Tracks.</h2>
+            <p>Market sizing, profitability and M&amp;A on the strategy track; LCOE, debottlenecking and district cooling on the technical one. Ask for data one exhibit at a time, take a framework hint without the answer, then compare your issue tree with the model structure.</p>
+            <div class="stats">
+              <div><b>16</b><span>original cases</span></div>
+              <div><b>12</b><span>set in the Gulf</span></div>
+              <div><b>10</b><span>framework notes</span></div>
+            </div>
+            <a class="pill" href="#practice">Know More <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+        </div>
+      </section>
+
+      <div class="band-title-wrap">
+        <h2 class="band-title">Sourced,<br>Not Supposed</h2>
+      </div>
+
+      <!-- Dark band: architecture and research -->
+      <section class="band" id="architecture" aria-labelledby="arch-title">
+        <div class="wrap split">
+          <figure class="arch" data-reveal>
+            <svg viewBox="0 0 560 360" role="img" aria-labelledby="arch-svg-title">
+              <title id="arch-svg-title">Architecture: the browser fires seven department calls in parallel through serverless functions to the Claude API, then one Company Brain call once all seven settle</title>
+              <defs>
+                <linearGradient id="ag" x1="0" x2="1"><stop stop-color="#4F7BFF"/><stop offset=".5" stop-color="#8A5CFF"/><stop offset="1" stop-color="#FF4FD8"/></linearGradient>
+                <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8z" fill="#8d8d96"/></marker>
+              </defs>
+              <g font-family="JetBrains Mono, monospace" font-size="11" fill="#cfcfd8">
+                <rect x="8" y="140" width="112" height="80" rx="12" fill="#131316" stroke="#2b2b36"/>
+                <text x="64" y="172" text-anchor="middle" fill="#fff" font-size="12">Browser</text>
+                <text x="64" y="192" text-anchor="middle" fill="#8d8d96" font-size="10">no API key</text>
+                <g>
+                  <rect x="182" y="20" width="150" height="238" rx="12" fill="#131316" stroke="url(#ag)"/>
+                  <text x="257" y="44" text-anchor="middle" fill="#fff" font-size="12">/api/department × 7</text>
+                  <g font-size="10.5">
+                    <circle cx="204" cy="70" r="5" fill="#B08A1A"/><text x="216" y="74">Finance</text>
+                    <circle cx="204" cy="96" r="5" fill="#5A8BE8"/><text x="216" y="100">Strategy</text>
+                    <circle cx="204" cy="122" r="5" fill="#E0634C"/><text x="216" y="126">Legal &amp; Risk</text>
+                    <circle cx="204" cy="148" r="5" fill="#2A9DAD"/><text x="216" y="152">Operations</text>
+                    <circle cx="204" cy="174" r="5" fill="#A274E6"/><text x="216" y="178">Marketing</text>
+                    <circle cx="204" cy="200" r="5" fill="#389F62"/><text x="216" y="204">Sustainability</text>
+                    <circle cx="204" cy="226" r="5" fill="#D8649F"/><text x="216" y="230">HR &amp; Talent</text>
+                  </g>
+                </g>
+                <rect x="182" y="286" width="150" height="56" rx="12" fill="#131316" stroke="#F4EFE3"/>
+                <text x="257" y="310" text-anchor="middle" fill="#fff" font-size="12">/api/brain</text>
+                <text x="257" y="328" text-anchor="middle" fill="#8d8d96" font-size="10">after all 7 settle</text>
+                <rect x="400" y="120" width="152" height="120" rx="12" fill="#131316" stroke="#2b2b36"/>
+                <text x="476" y="152" text-anchor="middle" fill="#fff" font-size="12">Claude API</text>
+                <text x="476" y="174" text-anchor="middle" fill="#b9b2ff" font-size="10.5">claude-opus-5</text>
+                <text x="476" y="194" text-anchor="middle" fill="#8d8d96" font-size="10">structured JSON</text>
+                <text x="476" y="212" text-anchor="middle" fill="#8d8d96" font-size="10">key in server env</text>
+                <path d="M120 170 C150 170 150 140 180 140" fill="none" stroke="#8d8d96" stroke-width="1.4" marker-end="url(#ah)"/>
+                <path d="M120 190 C150 190 150 314 180 314" fill="none" stroke="#8d8d96" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#ah)"/>
+                <path d="M332 140 C366 140 366 170 398 170" fill="none" stroke="#8d8d96" stroke-width="1.4" marker-end="url(#ah)"/>
+                <path d="M332 314 C372 314 372 212 398 212" fill="none" stroke="#8d8d96" stroke-width="1.4" marker-end="url(#ah)"/>
+                <text x="64" y="244" text-anchor="middle" fill="#8d8d96" font-size="10">7 in parallel</text>
+              </g>
+            </svg>
+          </figure>
+          <div class="copy" data-reveal>
+            <div class="eyebrow">Architecture &amp; research</div>
+            <h3 class="product-name">A key the browser never sees, and a source behind every default.</h3>
+            <p>Serverless functions hold the API key and return schema-validated verdicts. The committee's lean is plain arithmetic in code, because models are unreliable at weighted sums. Every tariff, discount rate and case figure traces back to the research notes in the repo.</p>
+            <div class="params">
+              <code>Damodaran KSA CRP 0.78%</code><code>SAR 0.20/kWh tariff</code><code>AACE Class 3</code><code>RAPID veto</code><code>output_config.format</code>
+            </div>
+            <a class="pill pill-light" href="https://github.com/aymankhayat/capital-committee/tree/main/docs/research" target="_blank" rel="noopener">Read the research <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <div class="kpi-strip" data-reveal>
+            <div><b>7</b><span>AI departments</span></div>
+            <div><b>16</b><span>consulting cases</span></div>
+            <div><b>4</b><span>calculator presets</span></div>
+            <div><b>3</b><span>research dossiers</span></div>
+            <div><b>5/5</b><span>finance engine tests</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Engineering notes -->
+      <section class="dark notes-sec" id="notes" aria-labelledby="notes-title">
+        <div class="wrap">
+          <div class="notes-head" data-reveal>
+            <div class="notes-title">
+              <div class="eyebrow">Case study</div>
+              <h2 id="notes-title">Engineering <span>Notes</span></h2>
+            </div>
+            <a class="pill pill-light" href="https://github.com/aymankhayat/capital-committee/blob/main/CASE_STUDY.md" target="_blank" rel="noopener">Read the full case study <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+          <div class="notes">
+            <article class="note" data-reveal>
+              <span class="k">01 · Orchestration</span>
+              <div class="metric">2 <small>stages, not 8 in a row</small></div>
+              <h3>Seven departments at once</h3>
+              <p>Each department is its own serverless call fired from the browser, so verdicts land as they finish. The Brain call waits for all seven to settle, which makes a committee two waits instead of eight.</p>
+            </article>
+            <article class="note" data-reveal>
+              <span class="k">02 · Accessibility</span>
+              <div class="metric">ΔE 3.3 → 7.4 <small>colour-blind separation</small></div>
+              <h3>A ring you can read with CVD</h3>
+              <p>Blue Strategy and violet Marketing sat side by side at ΔE 3.3 under deuteranopia. Reordering the ring so similar hues never touch lifted the worst neighbouring pair to 7.4, and every hub carries its name as a backup.</p>
+            </article>
+            <article class="note" data-reveal>
+              <span class="k">03 · 3D scene</span>
+              <div class="metric">~20 px <small>hub width at full zoom-out</small></div>
+              <h3>Clicks that actually land</h3>
+              <p>Real clicks kept missing the tiny hubs, so each one now has an invisible pick sphere. A leftover constant had also thrown inside the render loop and silently swapped in the flat map; the fallback now logs why it fired.</p>
+            </article>
+            <article class="note" data-reveal>
+              <span class="k">04 · Verification</span>
+              <div class="metric">5/5 <small>engine tests</small></div>
+              <h3>Numbers checked against research</h3>
+              <p>The solar preset reproduces the research sanity case: NPV +$1.71M, IRR 11.2%. Writing the tests also caught my own wrong expectation: the textbook IRR is 8.9%, not 10.65%, because NPV at 10% is already negative.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gradient CTA -->
+      <div class="cta-shell">
+        <section class="cta" aria-labelledby="cta-title">
+          <div class="eyebrow">Your turn</div>
+          <h2 id="cta-title">Put Your Next Decision to the Committee</h2>
+          <a class="cta-field" href="#committee">
+            <span>Convene the committee</span>
+            <span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/></svg></span>
+          </a>
+          <p class="cta-sub">No key needed · sample committees replay in demo mode</p>
+        </section>
+      </div>
+
+      <!-- Builder -->
+      <section class="builder" id="builder" aria-labelledby="builder-title">
+        <div class="rings soft" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="wrap builder-card">
+          <div class="monogram" aria-hidden="true">AK</div>
+          <div>
+            <div class="eyebrow">Designed &amp; built by</div>
+            <h2 id="builder-title">Ayman Khayat</h2>
+            <p>Research, finance engine, agent personas, 3D committee and this site. Built for work where engineering, capital decisions and consulting meet.</p>
+          </div>
+          <div class="builder-links">
+            <a class="pill li" href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener"><svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>LinkedIn</a>
+            <a class="pill" href="https://github.com/aymankhayat/capital-committee" target="_blank" rel="noopener">Source on GitHub <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11m-4-4 4 4-4 4" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+        </div>
+      </section>
     </section>
 
     <!-- CALCULATOR -->
-    <section id="view-calculator" class="view" data-view="calculator" aria-labelledby="calc-title" hidden>
+    <section id="view-calculator" class="view app-view" data-view="calculator" aria-labelledby="calc-title" hidden>
       <h1 id="calc-title" class="sr-only">Engineering economics calculator</h1>
       <div id="calcRoot"></div>
     </section>
 
     <!-- CASE PRACTICE -->
-    <section id="view-practice" class="view" data-view="practice" aria-labelledby="prac-title" hidden>
+    <section id="view-practice" class="view app-view" data-view="practice" aria-labelledby="prac-title" hidden>
       <h1 id="prac-title" class="sr-only">Case practice</h1>
       <div id="practiceRoot"></div>
     </section>
@@ -145,8 +404,8 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <footer class="foot">
-    <p class="foot-credit">Built by <a href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener">Ayman Khayat</a> · <a href="https://github.com/aymankhayat/capital-committee" target="_blank" rel="noopener">Source on GitHub</a></p>
-    <p>Departments and the Company Brain run on the Claude API through a server-side proxy; your key never reaches the browser. Figures and sources: <a href="https://github.com/aymankhayat/capital-committee/tree/main/docs/research">docs/research</a>. Not investment advice.</p>
+    <p class="foot-credit">Designed &amp; built by <a href="https://www.linkedin.com/in/ayman-khayat-350b4b335" target="_blank" rel="noopener">Ayman Khayat</a> · <a href="https://github.com/aymankhayat/capital-committee" target="_blank" rel="noopener">Source on GitHub</a></p>
+    <p>Departments and the Company Brain run on the Claude API through a server-side proxy; the key never reaches the browser. Concept images are labelled as AI and made from the real project. Figures and sources: <a href="https://github.com/aymankhayat/capital-committee/tree/main/docs/research">docs/research</a>. Not investment advice.</p>
   </footer>
 </body>
 </html>

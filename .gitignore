@@ -3,5 +3,7 @@ node_modules/
 .env.local
 .vercel/
 .claude/
+.agents/
+skills-lock.json
 *.log
 .DS_Store

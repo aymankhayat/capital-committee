@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OG card source</title>
+<!-- Rendered to assets/og-card.png at 1200×627 with headless Edge. Not linked from the site. -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Manrope:wght@500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1200px; height: 627px; overflow: hidden; background: #050506; }
+  .card { position: relative; width: 1200px; height: 627px; overflow: hidden; color: #fff; font-family: Manrope, sans-serif; }
+  /* art pushed right so no orb sits behind the headline */
+  .art { position: absolute; top: 0; bottom: 0; left: 520px; right: -140px; background: url("../assets/img/ai-hero-2400.jpg") 50% 50% / cover no-repeat;
+    -webkit-mask: linear-gradient(90deg, transparent 0, #000 30%); mask: linear-gradient(90deg, transparent 0, #000 30%); }
+  .glow { position: absolute; inset: 0; background: radial-gradient(520px circle at 78% 46%, rgba(110, 100, 255, .18), transparent 70%); }
+  .copy { position: absolute; left: 64px; top: 60px; width: 640px; display: grid; gap: 22px; }
+  .eyebrow { font: 500 14px/1 "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; color: #a2a2ad; display: flex; align-items: center; gap: 12px; }
+  .eyebrow::before { content: ""; width: 18px; height: 7px;
+    background: radial-gradient(circle at 3.5px 3.5px, #D9A93A 3.3px, transparent 3.6px), radial-gradient(circle at 14.5px 3.5px, #4F7BFF 3.3px, transparent 3.6px); }
+  h1 { margin: 0; font: 700 62px/1.02 Sora, sans-serif; letter-spacing: -.035em; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #f6d68b 0%, #fff 34%, #c3b8ff 66%, #ff9bea 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .stats { position: absolute; left: 64px; bottom: 100px; display: flex; gap: 56px; }
+  .stats b { display: block; font: 600 44px/1 Sora, sans-serif; letter-spacing: -.03em; }
+  .stats span { font: 500 13px/1.4 "JetBrains Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: #a2a2ad; }
+  .credit { position: absolute; left: 64px; right: 64px; bottom: 34px; display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #23232a; padding-top: 18px; font: 600 16px/1 Manrope, sans-serif; color: #ededf0; }
+  .credit small { font: 500 12px/1 "JetBrains Mono", monospace; letter-spacing: .06em; color: #8a8a94; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="art"></div>
+    <div class="glow"></div>
+    <div class="copy">
+      <div class="eyebrow">Capital Committee</div>
+      <h1>Capital Decisions, Argued <em>Like a Boardroom</em></h1>
+    </div>
+    <div class="stats">
+      <div><b>7</b><span>AI departments</span></div>
+      <div><b>16</b><span>consulting cases</span></div>
+      <div><b>5/5</b><span>engine tests</span></div>
+    </div>
+    <div class="credit">Designed &amp; built by Ayman Khayat <small>Concept image · Higgsfield, from the real project</small></div>
+  </div>
+</body>
+</html>

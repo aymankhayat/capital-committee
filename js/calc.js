@@ -277,7 +277,7 @@ function barPath(x0, x1, y, h) {
 
 function drawTornado(host, t) {
   const W = Math.max(320, Math.round(host.clientWidth || 760));
-  const LAB = W < 600 ? Math.round(W * 0.4) : 228, RIGHT = 48, ROW = 40, BAR = 20, TOP = 8;
+  const LAB = W < 600 ? Math.round(W * 0.46) : 228, RIGHT = 40, ROW = 40, BAR = 20, TOP = 8;
   const H = TOP + t.bars.length * ROW + 34;
   const vals = t.bars.flatMap(b => [b.lowNpv, b.highNpv]).concat(t.base, 0);
   let min = Math.min(...vals), max = Math.max(...vals);
@@ -292,7 +292,9 @@ function drawTornado(host, t) {
     const xb = x(t.base);
     const segs = [[b.lowNpv, 'var(--t-low)', 'low'], [b.highNpv, 'var(--t-high)', 'high']].sort((a, c) => Math.abs(c[0] - t.base) - Math.abs(a[0] - t.base));
     s += `<g class="tn-row" data-i="${i}"><rect class="tn-hit" x="0" y="${TOP + i * ROW}" width="${W}" height="${ROW}"/>`;
-    s += `<text class="tn-label" x="${LAB - 12}" y="${y + 9}" text-anchor="end">${esc(b.label)}</text><text class="tn-range" x="${LAB - 12}" y="${y + 23}" text-anchor="end">${esc(rangeText(b))}</text>`;
+    // Narrow charts: drop the parenthetical so the label fits its column.
+    const name = W < 600 ? b.label.replace(/\s*\(.*\)/, '') : b.label;
+    s += `<text class="tn-label" x="${LAB - 12}" y="${y + 9}" text-anchor="end">${esc(name)}</text><text class="tn-range" x="${LAB - 12}" y="${y + 23}" text-anchor="end">${esc(rangeText(b))}</text>`;
     segs.forEach(([v, col]) => { s += `<path d="${barPath(xb, x(v), y, BAR)}" fill="${col}"/>`; });
     // value labels at the bar tips
     [[b.lowNpv], [b.highNpv]].forEach(([v]) => {

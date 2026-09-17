@@ -12,7 +12,16 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 const R = 7.6;                    // ring radius
 // Idle distance scales with the viewport: on a short screen the tree has to sit
 // in a narrower clear band between the header and the prompt bar.
-const idleDistance = h => Math.max(30, Math.min(50, 34 * (700 / Math.max(360, h))));
+// Narrow phone panels are width-limited instead, so fit the ring's width too.
+const idleDistance = (w, h) => {
+  const aspect = w / Math.max(1, h);
+  const byHeight = 34 * (700 / Math.max(360, h));
+  // labels are fixed-size DOM text: leave more side margin on portrait panels
+  const byWidth = (aspect < 0.8 ? 14.5 : 11.5) / (Math.tan(22 * Math.PI / 180) * aspect);
+  return Math.max(30, Math.min(80, Math.max(byHeight, byWidth)));
+};
+// Portrait panels stack the prompt bar under the tree, so lift the tree higher.
+const worldLift = (w, h) => (w / Math.max(1, h) < 0.8 ? 7 : 3.4);
 const CAM_HOVER = 18;             // gentle fly-in
 const CAM_FOCUS = 12;             // close enough to read the agent labels
 const TAU = Math.PI * 2;
@@ -48,7 +57,7 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x03040a, 0.016);
   const camera = new THREE.PerspectiveCamera(44, host.clientWidth / host.clientHeight, 0.1, 200);
-  let camIdle = idleDistance(host.clientHeight);
+  let camIdle = idleDistance(host.clientWidth, host.clientHeight);
   camera.position.set(0, 0, camIdle);
 
   // Metal needs something to reflect: a room environment gives hubs their sheen.
@@ -61,7 +70,7 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
 
   const world = new THREE.Group();
   // Slight lift: the prompt bar occupies the lower band of the hero.
-  world.position.y = 3.4;
+  world.position.y = worldLift(host.clientWidth, host.clientHeight);
   scene.add(world);
   const sprite = glowTexture();
 
@@ -261,7 +270,7 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
   const camTarget = new THREE.Vector3(0, 0, camIdle);
   const lookTarget = new THREE.Vector3(0, 0, 0);
   const lookNow = new THREE.Vector3(0, 0, 0);
-  let mode = 'idle', focused = null, hovered = null, orbit = 0, pointer = { x: 0, y: 0 };
+  let mode = 'idle', focused = null, hovered = null, hoverAt = null, orbit = 0, pointer = { x: 0, y: 0 };
 
   function desiredCamera() {
     if (mode === 'idle') {
@@ -299,10 +308,14 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
     const r = renderer.domElement.getBoundingClientRect();
     pointer.x = ((ev.clientX - r.left) / r.width - 0.5) * 2;
     pointer.y = -((ev.clientY - r.top) / r.height - 0.5) * 2;
-    const hit = pick(ev);
+    let hit = pick(ev);
+    // The fly-in moves the hub out from under the cursor. Keep the hover until
+    // the pointer really moves away, so jitter or a click doesn't cancel it.
+    if (!hit && hovered && hoverAt && Math.hypot(ev.clientX - hoverAt.x, ev.clientY - hoverAt.y) < 40) hit = hovered;
     if (hit !== hovered) {
       if (hit) {
         hovered = hit;
+        hoverAt = { x: ev.clientX, y: ev.clientY };
         const n = nodes[hit];
         n.target = 1.45;
         emit(n.pos, n.col, 40, 2.6);
@@ -318,7 +331,9 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
     }
   }
   function onClick(ev) {
-    const hit = pick(ev);
+    // The hover fly-in slides the hub out from under a still cursor, so a click
+    // that misses while a department is still hovered means that department.
+    const hit = pick(ev) || hovered;
     if (hit) { api.focus(hit); onSelect?.(hit); }
     else if (focused) { api.focus(null); onSelect?.(null); }
   }
@@ -415,7 +430,8 @@ export async function createScene3D(host, { depts, onSelect, onHover, onHoverEnd
   function resize() {
     const w = host.clientWidth, h = host.clientHeight;
     if (!w || !h) return;
-    camIdle = idleDistance(h);
+    camIdle = idleDistance(w, h);
+    world.position.y = worldLift(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);

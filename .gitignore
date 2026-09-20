@@ -7,3 +7,6 @@ node_modules/
 skills-lock.json
 *.log
 .DS_Store
+docs/higgsfield_prompts.md
+docs/linkedin_kit.md
+linkedin/
